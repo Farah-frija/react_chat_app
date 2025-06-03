@@ -6,8 +6,24 @@ import { faker } from '@faker-js/faker';
 import StyledBadge from '../StyledBadge';
 import { ToggleSidebar } from '../../redux/slices/app';
 import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+const getPath = (index) =>{
+ 
+    return '/meeting'
+  
+ 
 
-const Header = () => {
+};
+const handleMeetingClick = () => {
+    // Option 1: Open in same tab (current behavior)
+    // navigate(getPath(0));
+    
+    // Option 2: Open in new tab (recommended)
+    window.open(getPath(0), '_blank', 'noopener,noreferrer');
+  };
+  const Header = ({ selectedChat }) => {
+    console.log('Header selectedChat:', selectedChat);
+ const navigate = useNavigate();
   const dispatch = useDispatch();
   const theme = useTheme();
   return (
@@ -16,29 +32,23 @@ const Header = () => {
     sx={{width:'100%', height:'100%'}}>
         <Stack onClick={()=>{
             dispatch(ToggleSidebar());
-        }} direction={'row'} spacing={2}>
-            <Box>
-                <StyledBadge  overlap="circular"
-                anchorOrigin={{ // position
-                    vertical: "bottom",
-                    horizontal: "right",
-                }}
-                variant="dot">
-                    <Avatar alt={faker.name.fullName()} src={faker.image.avatar()}/>
-                </StyledBadge>
-                
-            </Box>
-            <Stack spacing={0.2}>
-                    <Typography variant='subtitle2'>
-                        {faker.name.fullName()}
-                    </Typography>
-                    <Typography variant='caption'>
-                        Online
-                    </Typography>
-                </Stack>
+        }}direction={'row'} spacing={2}>
+        <Box>
+          <StyledBadge overlap="circular" variant="dot">
+            <Avatar alt={selectedChat?.name} src={selectedChat?.img} />
+          </StyledBadge>
+        </Box>
+        <Stack spacing={0.2}>
+          <Typography variant='subtitle2'>
+            {selectedChat?.name || 'Select a chat'}
+          </Typography>
+          <Typography variant='caption'>
+            {selectedChat?.online ? 'Online' : 'Offline'}
+          </Typography>
         </Stack>
+      </Stack>
         <Stack direction='row' alignItems='center' spacing={3}>
-            <IconButton>
+            <IconButton onClick={  handleMeetingClick } >
                 <VideoCamera/>
             </IconButton>
             <IconButton>

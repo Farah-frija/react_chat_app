@@ -16,6 +16,7 @@ import { CaretDown, MagnifyingGlass, Phone, VideoCamera } from "phosphor-react";
 import { faker } from "@faker-js/faker";
 import { useSearchParams } from "react-router-dom";
 import useResponsive from "../../hooks/useResponsive";
+import { useNavigate } from 'react-router-dom';
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
@@ -45,6 +46,13 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
     },
   },
 }));
+const getPath = (index) =>{
+ 
+      return '/call'
+    
+   
+ 
+};
 
 const Conversation_Menu = [
   {
@@ -62,6 +70,7 @@ const Conversation_Menu = [
 ];
 
 const ChatHeader = () => {
+  const navigate = useNavigate();
   const isMobile = useResponsive("between", "md", "xs", "sm");
   const [searchParams, setSearchParams] = useSearchParams();
   const theme = useTheme();
@@ -117,9 +126,9 @@ const ChatHeader = () => {
             <Typography variant="caption">Online</Typography>
           </Stack>
         </Stack>
-        <Stack direction={"row"} alignItems="center" spacing={isMobile ? 1 : 3}>
-          <IconButton>
-            <VideoCamera />
+        <Stack direction={"row"} alignItems="center" spacing={isMobile ? 1 : 3} >
+          <IconButton onClick={() => {  navigate(getPath(0)) }} >
+            <VideoCamera  />
           </IconButton>
           <IconButton>
             <Phone />

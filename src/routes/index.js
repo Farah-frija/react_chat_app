@@ -4,6 +4,7 @@ import { Navigate, useRoutes } from "react-router-dom";
 // layouts
 import DashboardLayout from "../layouts/dashboard";
 import MainLayout from "../layouts/main";
+//import Conversation from "../pages/dashboard/GeneralApp";
 
 // config
 import { DEFAULT_PATH } from "../config";
@@ -40,10 +41,16 @@ export default function Router() {
         { path: "group", element: <GroupPage /> },
         { path: "call", element: <CallPage /> },
         { path: "profile", element: <ProfilePage /> },
+        
         { path: "404", element: <Page404 /> },
         { path: "*", element: <Navigate to="/404" replace /> },
       ],
     },
+    {
+      path: "/meeting",
+      element: <MeetingPage />, // Standalone component
+    },
+   
     { path: "*", element: <Navigate to="/404" replace /> },
   ]);
 }
@@ -82,5 +89,8 @@ const CallPage = Loadable(
 
 const ProfilePage = Loadable(
   lazy(() => import("../pages/dashboard/Profile")),
+);
+const MeetingPage = Loadable(
+  lazy(() => import("../components/MainScreen/MainScreen.component")),
 );
 const Page404 = Loadable(lazy(() => import("../pages/Page404")));

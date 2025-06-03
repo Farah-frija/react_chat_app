@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-
+import { ChatProvider } from "./agoraService/Agora_chat";
 // contexts
 import SettingsProvider from "./contexts/SettingsContext";
 import { store } from "./redux/store";
@@ -17,9 +17,11 @@ root.render(
     <HelmetProvider>
       <ReduxProvider store={store}>
       <SettingsProvider>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
+      <ChatProvider>
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
+</ChatProvider>
       </SettingsProvider>
       </ReduxProvider>
     </HelmetProvider>

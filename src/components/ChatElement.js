@@ -3,15 +3,22 @@ import {useTheme , styled} from '@mui/material/styles';
 import StyledBadge from './StyledBadge';
 
 //single chat element
-const ChatElement = ({id,name, img, msg, time,online, unread}) => {
+const ChatElement = ({id, name, img, msg, time, online, unread, onClick, isSelected}) => {
     const theme = useTheme();
     return (
-      <Box sx={{
+      <Box 
+      sx={{
         width: "100%",
         borderRadius: 1,
-        backgroundColor: theme.palette.mode === 'light'? "#fff" : theme.palette.background.default
+        backgroundColor: isSelected ? '#E5EFFD' : (theme.palette.mode === 'light' ? "#fff" : theme.palette.background.default),
+        cursor: 'pointer',
+        '&:hover': {
+          backgroundColor: '#F5F5F5'
+        }
       }}
-        p={2}>
+      p={2}
+      onClick={onClick}
+    >
         <Stack direction="row" alignItems='center' justifyContent='space-between'>
           <Stack direction='row' spacing={2}>
             {online ? <StyledBadge overlap='circular' anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
