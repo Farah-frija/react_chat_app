@@ -7,21 +7,24 @@ import StyledBadge from '../StyledBadge';
 import { ToggleSidebar } from '../../redux/slices/app';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-const getPath = (index) =>{
- 
-    return '/meeting'
-  
- 
 
-};
-const handleMeetingClick = () => {
-    // Option 1: Open in same tab (current behavior)
-    // navigate(getPath(0));
-    
-    // Option 2: Open in new tab (recommended)
-    window.open(getPath(0), '_blank', 'noopener,noreferrer');
-  };
+
   const Header = ({ selectedChat }) => {
+    const getPath = (index) =>{
+      if (!selectedChat) return '/meeting';
+     
+      return `/meeting?convId=${encodeURIComponent(selectedChat.id)}`;
+      
+     
+    
+    };
+    const handleMeetingClick = () => {
+      // Option 1: Open in same tab (current behavior)
+      // navigate(getPath(0));
+      
+      // Option 2: Open in new tab (recommended)
+      window.open(getPath(0), '_blank', 'noopener,noreferrer');
+    };
     console.log('Header selectedChat:', selectedChat);
  const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -43,7 +46,7 @@ const handleMeetingClick = () => {
             {selectedChat?.name || 'Select a chat'}
           </Typography>
           <Typography variant='caption'>
-            {selectedChat?.online ? 'Online' : 'Offline'}
+            {selectedChat?.online ? 'Online' : 'Online'}
           </Typography>
         </Stack>
       </Stack>

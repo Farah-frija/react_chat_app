@@ -1,185 +1,118 @@
-import { Avatar, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, Slide, Stack, Typography} from '@mui/material'
-import React, { useState } from 'react';
-import {useTheme } from "@mui/material/styles";
-import { Bell, CaretRight, Phone, Prohibit, Star, Trash, VideoCamera, X } from 'phosphor-react';
 import { useDispatch } from 'react-redux';
-import { ToggleSidebar, UpdateSidebarType } from '../redux/slices/app';
-import { faker } from '@faker-js/faker';
-import AntSwitch from './AntSwitch';
-import '../css/global.css';
+import React, { useEffect, useState } from 'react';
+import { 
+  Box, 
+  Typography, 
+  List, 
+  ListItem, 
+  ListItemAvatar, 
+  Avatar, 
+  ListItemText, 
+  Divider,
+  CircularProgress
+} from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import axios from 'axios';
+import { format } from 'date-fns';
 
-const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
-
-const BlockDialog = ({open, handleClose}) =>{
-  return (
-    <Dialog
-    open={open}
-    TransitionComponent={Transition}
-    keepMounted
-    onClose={handleClose}
-    aria-describedby="alert-dialog-slide-description"
-  >
-    <DialogTitle>Block this contact</DialogTitle>
-    <DialogContent>
-      <DialogContentText id="alert-dialog-slide-description">
-       Are you sure you want to block this contact?
-      </DialogContentText>
-    </DialogContent>
-    <DialogActions>
-      <Button onClick={handleClose}>Cancel</Button>
-      <Button onClick={handleClose}>Yes</Button>
-    </DialogActions>
-  </Dialog>
-  )
-}
-
-const DeleteDialog = ({open, handleClose}) =>{
-  return (
-    <Dialog
-    open={open}
-    TransitionComponent={Transition}
-    keepMounted
-    onClose={handleClose}
-    aria-describedby="alert-dialog-slide-description"
-  >
-    <DialogTitle>Delete this chat</DialogTitle>
-    <DialogContent>
-      <DialogContentText id="alert-dialog-slide-description">
-       Are you sure you want to delete this chat?
-      </DialogContentText>
-    </DialogContent>
-    <DialogActions>
-      <Button onClick={handleClose}>Cancel</Button>
-      <Button onClick={handleClose}>Yes</Button>
-    </DialogActions>
-  </Dialog>
-  )
-}
-
-const Contact = () => {
+const Contact = ({ selectedChat }) => {
+  const [meetingSessions, setMeetingSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
   const theme = useTheme();
-  const dispatch = useDispatch();
+  const conversationId = selectedChat?.id;
+  const currentUserId = 1;
 
-  const [openBlock, setOpenBlock] = useState(false);
-  const [openDelete, setOpenDelete] = useState(false);
+  useEffect(() => {
+    const fetchMeetingHistory = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:3001/meeting-history/conversation/${conversationId}`
+        );
+        setMeetingSessions(response.data);
+      } catch (error) {
+        console.error('Error fetching meeting history:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleCloseBlock = () =>{
-    setOpenBlock(false);
-  }
+    if (conversationId) {
+      fetchMeetingHistory();
+    }
+  }, [conversationId]);
 
-  const handleCloseDelete = () =>{
-    setOpenDelete(false);
-  }
+  const getActionText = (session) => {
+    const isCurrentUser = session.participant.id === currentUserId;
+    const action = session.actionType === 'join' ? 'joined' : 'left';
+    const time = format(new Date(session.actionTime), 'h:mm a');
+    
+    return isCurrentUser 
+      ? `You ${action} at ${time}`
+      : `${session.participant.fullName} ${action} at ${time}`;
+  };
+
+  if (loading) return (
+    <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+      <CircularProgress size={24} />
+    </Box>
+  );
+
+  if (!meetingSessions.length) return (
+    <Typography variant="body2" sx={{ p: 2, color: 'text.secondary' }}>
+      No meeting history found
+    </Typography>
+  );
 
   return (
-    <Box sx={{width:320, height:'100vh'}}>
-      <Stack sx={{height:'100%'}}>
-        {/* Header */}
-        <Box sx={{
-          boxShadow: '0px 0px 2px rgba(0.25)',
-          width: '100%',
-          backgroundColor: theme.palette.mode === 'light' ? '#F8FAFF' : theme.palette.background
-        }}>
-          <Stack sx={{height:'100%', p:2}} direction='row' alignItems='center'
-           justifyContent='space-between' spacing={3}>
-            <Typography variant='subtitle2'>Contact Info</Typography>
-            <IconButton onClick={()=>{
-              dispatch(ToggleSidebar());
-            }}>
-              <X/>
-            </IconButton>
-          </Stack>
-        </Box>
-        {/* Body */}
-        <Stack className='scrollbar'  sx={{height:'100%', position:'relative', flexGrow:1, overflowY:'scroll'}} p={3}
-        spacing={3}>
-          <Stack alignItems={'center'} direction='row' spacing={2}>
-            <Avatar src={faker.image.avatar()} alt={faker.name.firstName} sx={{height:64, width:64}}/>
-            <Stack spacing={0.5}>
-              <Typography variant='article' fontWeight={600}>
-                {faker.name.fullName()}
-              </Typography>
-              <Typography variant='article' fontWeight={500}>
-                {'+94 713725452'}
-              </Typography>
-            </Stack>
-          </Stack>
-          <Stack direction='row' alignItems='center' justifyContent='space-evenly'>
-            <Stack spacing={1} alignItems='center' >
-              <IconButton>
-                <Phone/>
-              </IconButton>
-              <Typography variant='overline'>Voice</Typography>
-            </Stack>
-            <Stack spacing={1} alignItems='center' >
-              <IconButton>
-                <VideoCamera/>
-              </IconButton>
-              <Typography variant='overline'>Video</Typography>
-            </Stack>
-          </Stack>
-          <Divider/>
-          <Stack spacing={0.5}>
-            <Typography variant='article'>About</Typography>
-            <Typography variant='body2'>Hi I'm working</Typography>
-          </Stack>
-          <Divider/>
-          <Stack direction='row' alignItems={'center'} justifyContent='space-between' >
-            <Typography variant='subtitle2'>Media, Links & Docs</Typography>
-            <Button onClick={()=>{
-              dispatch(UpdateSidebarType('SHARED'))
-            }} endIcon={<CaretRight/>}>401</Button>
-          </Stack>
-          <Stack direction='row' spacing={2} alignItems={'center'}>
-            {[1,2,3].map((el)=>(
-              <Box>
-                <img src={faker.image.food()} alt={faker.name.fullName()}/>
-              </Box>
-            ))}
-          </Stack>
-          <Divider/>
-          <Stack direction='row' alignItems={'center'} justifyContent='space-between'>
-            <Stack direction='row' spacing={2} alignItems={'center'}>
-              <Star size={21}/>
-              <Typography variant='subtitle2'>Starred Messages</Typography>
-            </Stack>
-            <IconButton onClick={()=>{
-              dispatch(UpdateSidebarType('STARRED'))
-            }}><CaretRight/></IconButton>
-          </Stack>
-          <Divider/>
-          <Stack direction='row' alignItems={'center'} justifyContent='space-between'>
-            <Stack direction='row' spacing={2} alignItems={'center'}>
-              <Bell size={21}/>
-              <Typography variant='subtitle2'>Mute Notifications</Typography>
-            </Stack>
-            <AntSwitch/>
-          </Stack>
-          <Divider/>
-          <Typography>1 group in common</Typography>
-          <Stack direction='row' spacing={2} alignItems={'center'}>
-            <Avatar src={faker.image.avatar()} alt={faker.name.fullName}/>
-            <Stack spacing={0.5}>
-              <Typography variant='subtitle2' >React Developers</Typography>
-              <Typography variant='caption' >Kaveena, Pavithra, Ayesha, You</Typography>
-            </Stack>
-          </Stack>
-          <Stack direction='row' alignItems={'center'} spacing={2}>
-            <Button onClick={()=>{setOpenBlock(true)}} startIcon={<Prohibit/>} fullWidth variant='outlined'>
-              Block
-            </Button >
-            <Button onClick={()=>{setOpenDelete(true)}} startIcon={<Trash/>} fullWidth variant='outlined'>
-              Delete
-            </Button>
-          </Stack>
-        </Stack>
-      </Stack>
-      {openBlock && <BlockDialog open={openBlock} handleClose={handleCloseBlock}/>}
-      {openDelete && <DeleteDialog open={openDelete} handleClose={handleCloseDelete}/>}
+    <Box sx={{ 
+      p: 1.5, 
+      backgroundColor: theme.palette.background.paper,
+      borderRadius: 1,
+      boxShadow: theme.shadows[1]
+    }}>
+      <Typography variant="subtitle2" gutterBottom sx={{ 
+        fontWeight: 500,
+        color: 'text.primary',
+        mb: 1.5
+      }}>
+        Meeting History
+      </Typography>
+      <List dense sx={{ py: 0 }}>
+        {meetingSessions.map((session) => (
+          <React.Fragment key={session.id}>
+            <ListItem alignItems="flex-start" sx={{ py: 0.75, px: 1 }}>
+              <ListItemAvatar sx={{ minWidth: 40 }}>
+                <Avatar 
+                  alt={session.participant.fullName} 
+                  sx={{ width: 32, height: 32 }} 
+                />
+              </ListItemAvatar>
+              <ListItemText
+                primary={
+                  <Typography variant="body2" sx={{ 
+                    fontWeight: session.participant.id === currentUserId ? 500 : 400,
+                    color: 'text.primary'
+                  }}>
+                    {getActionText(session)}
+                  </Typography>
+                }
+                secondary={
+                  <Typography variant="caption" sx={{ 
+                    color: 'text.secondary',
+                    fontSize: '0.75rem'
+                  }}>
+                    {format(new Date(session.actionTime), 'PP')}
+                  </Typography>
+                }
+                sx={{ my: 0 }}
+              />
+            </ListItem>
+            <Divider variant="inset" component="li" sx={{ ml: 6 }} />
+          </React.Fragment>
+        ))}
+      </List>
     </Box>
-  )
-}
+  );
+};
 
-export default Contact
+export default Contact;

@@ -25,9 +25,10 @@ const Chats =  ({ onSelectChat }) => {
         const transformedData = data.map(chat => ({
           id: chat.id,
           name: chat.otherParticipant.fullName,
+          otherParticipantId: chat.otherParticipant.id,
           img: faker.image.avatar(), // Using faker for avatar since API doesn't provide
           msg: chat.lastMessage,
-          time: new Date(chat.lastMessageAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          time:new Date( chat.lastMessageAt).getTime(),
           online: chat.otherParticipant.isOnline,
           unread: 0, // You might want to add this to your API response
           pinned: false // You might want to add this to your API response

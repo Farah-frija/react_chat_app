@@ -1,6 +1,6 @@
 // src/components/Conversation/Footer.js
 import { Box, Fab, IconButton, InputAdornment, Stack, TextField, Tooltip } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useState ,useEffect} from 'react';
 import { styled, useTheme } from "@mui/material/styles";
 import { LinkSimple, PaperPlaneTilt, Smiley, Camera, File, Image, Sticker, User } from 'phosphor-react';
 import data from '@emoji-mart/data'
@@ -78,17 +78,26 @@ const ChatInput = ({setOpenPicker, onSendMessage, message, setMessage}) =>{
     )
 }
 
-const Footer = () => {
+const Footer = ({ selectedChat }) => {
     const theme = useTheme();
     const [openPicker, setOpenPicker] = useState(false);
     const [message, setMessage] = useState(''); // State moved here
     const { sendMessage, currentUser } = useChat();
-    
-    const recipientId = "1111";
-    
+    const [recipientId, setRecipientId] = useState(null);
+
+    // Update recipientId when selectedChat changes
+    useEffect(() => {
+        if (selectedChat?.otherParticipantId) {
+            setRecipientId(selectedChat.otherParticipantId);
+        } else {
+            setRecipientId(null);
+        }
+    }, [selectedChat]);
+
+    console.log(recipientId, "Current recipient ID");
     const handleSendMessage = (msg) => {
-        if (currentUser && msg.trim()) {
-            sendMessage(recipientId, msg);
+        if (currentUser && msg.trim() && recipientId) {
+            sendMessage(recipientId, msg,selectedChat?.id);
             setMessage(''); // Clear the message after sending
         }
     };

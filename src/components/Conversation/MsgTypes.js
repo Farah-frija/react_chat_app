@@ -109,6 +109,7 @@ const MediaMsg = ({el,menu}) => {
 
 const TextMsg = ({el,menu}) => {
     const theme = useTheme();
+    console.log("elll",el)
     return (
         <Stack direction='row' justifyContent={el.incoming ? 'start' : 'end'}>
             <Box p={1.5} sx={{

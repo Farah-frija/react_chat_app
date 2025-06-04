@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import AgoraRTC from 'agora-rtc-sdk-ng';
 import './Participants.css';
-
+import axios from 'axios';
+import { useLocation } from 'react-router-dom';
 const MeetingRoom = () => {
   const [localTracks, setLocalTracks] = useState({
     videoTrack: null,
@@ -12,9 +13,10 @@ const MeetingRoom = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
+  const location = useLocation();
   const [roomDetails, setRoomDetails] = useState({
     appId: 'aacbfe2f1fe741cfb54fcf66e8b43420',
-    channel: 'testi',
+    channel: new URLSearchParams(location.search).get('convId'),
     token: "null" // Initialize as null
   });
   
@@ -64,6 +66,23 @@ console.log('Strict equality:', roomDetails.token === null);
       }
       else
         token=roomDetails.token;
+       // Create meeting session record first
+    
+      const response = await axios.post(
+        'http://localhost:3001/meeting-history/record',
+        {
+          conversationId: roomDetails.channel, // Assuming channel is the conversationId
+          participantId: 1, // Replace with actual participant ID
+          actionType: 'join'
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      console.log('Meeting session created:', response.data);
+  
       client.on("user-published", handleUserPublished);
       client.on("user-unpublished", handleUserUnpublished);
       client.on("user-joined", handleUserJoined);
@@ -92,7 +111,20 @@ console.log('Strict equality:', roomDetails.token === null);
   const leaveRoom = async () => {
     const client = clientRef.current;
     if (!client) return;
-    
+    const response = await axios.post(
+      'http://localhost:3001/meeting-history/record',
+      {
+        conversationId: roomDetails.channel, // Assuming channel is the conversationId
+        participantId: 1, // Replace with actual participant ID
+        actionType: 'leave'
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    console.log('Meeting session created:', response.data);
     Object.values(localTracks).forEach(track => {
       if (track) {
         track.stop();
@@ -105,6 +137,7 @@ console.log('Strict equality:', roomDetails.token === null);
         player.container.remove();
       }
     });
+
 
     setLocalTracks({ videoTrack: null, audioTrack: null });
     setRemoteUsers({});

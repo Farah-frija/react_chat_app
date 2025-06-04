@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import AgoraChat from 'agora-chat';
 import catSound from './cat.mp3';
+import axios from 'axios';
 const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
@@ -29,14 +30,17 @@ export const ChatProvider = ({ children }) => {
         console.log('Disconnected from Agora Chat');
       },
       onTextMessage: (message) => {
-        console.log(message);
+        console.log("message jekkk fiik",message);
         setMessages(prev => [...prev, {
-          id: Date.now(),
+          id: message.id,
+          time:message.time,
           message: message.msg,
           incoming: true,
           subtype: 'text',
-          from: message.from
+          from: message.from,
+          convId:message.ext.convId
         }]);
+        console.log(messages,"messagee heeee");
         const audio = new Audio(catSound);
         console.log(audio);
         audio.load();
@@ -75,27 +79,51 @@ export const ChatProvider = ({ children }) => {
   };
 
   // Send message function
-  const sendMessage = async (to, message) => {
-    console.log("message");
+  const sendMessage = async (too, message,conversationId) => {
+    console.log("message",message);
+    console.log("too",too);
     if (!message.trim()) return;
-
+    
     try {
+     
+      const response = await fetch('http://localhost:3001/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          conversationId: conversationId,
+          senderId: currentUser,
+          content: message
+        })
+      });
+      const data = await response.json(); // This is needed with fetch
+      console.log(data, 'data after message sent');
       const options = {
+        id:data.id,
         chatType: "singleChat",
         type: "txt",
-        to: to,
+        to: String(too),
         msg: message,
+         ext: { // ✅ Store custom data in `ext`
+            convId: conversationId,
+            
+          }
       };
       let msg = AgoraChat.message.create(options);
       await chatClient.current.send(msg);
       
       // Add to local state immediately for optimistic UI update
       setMessages(prev => [...prev, {
-        id: Date.now(),
+        id: data.id,
+        time:data.timestamp,
+        to: too,
         message: message,
         incoming: false,
         subtype: 'text',
-        from: currentUser
+        from: currentUser,
+        convId:conversationId
+
       }]);
     } catch (error) {
       console.error('Message send failed:', error);
