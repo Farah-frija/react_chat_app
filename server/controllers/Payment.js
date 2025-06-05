@@ -4,14 +4,14 @@ module.exports = {
   Add: async (req, res) => {
       const url = "https://developers.flouci.com/api/generate_payment";
       const payload = {
-        "app_token": "17ffd50a-a35f-4549-96a9-ed627756b92b", // Replace with your actual app token
-        "app_secret": "0c9f51b0-305a-433a-b248-97391fce99e3", // Use the secret key from your environment variables
+        "app_token": "fb1e4c6e-2f2c-445a-8d24-2a6f5844b25b", // Replace with your actual app token
+        "app_secret": "6d6ca96f-c676-47fe-b5e0-30c34c7e1e13", // Use the secret key from your environment variables
         "amount": req.body.amount,
         "accept_card": true,
         "session_timeout_secs": 1200,
-        "success_link": "http://localhost:3000/Success",
-        "fail_link": "http://localhost:3000/Failed",
-        "developer_tracking_id": "b7dca4c2-ab01-4aff-8e12-097bf847fdf0",
+        "success_link": "http://localhost:3003/Success",
+        "fail_link": "http://localhost:3003/Failed",
+        "developer_tracking_id": "b7dca4c2-ab01-4aff-8e12-097bf847fdf0"
       }
       try {
         const result = await axios.post(url, payload);

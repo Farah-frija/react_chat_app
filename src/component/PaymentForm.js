@@ -12,7 +12,9 @@ const PaymentForm = () => {
   const generatePaymentLink = async () => {
     try {
       const response = await axios.post("http://localhost:5000/api/payment", { amount });
+      console.log(response)
       const link = response.data.result.link; // Extract the payment link from the response
+
       setPaymentLink(link);
       redirectToPayment(link); // Redirect to the payment link
     } catch (error) {
