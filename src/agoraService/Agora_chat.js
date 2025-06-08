@@ -85,8 +85,9 @@ export const ChatProvider = ({ children }) => {
     if (!message.trim()) return;
     
     try {
-     
-      const response = await fetch('http://localhost:3001/messages', {
+     const  port=process.env.REACT_APP_PORT;
+
+      const response = await fetch(`http://localhost:${port}/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

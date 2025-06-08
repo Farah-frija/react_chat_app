@@ -14,15 +14,16 @@ const GeneralApp = () => {
   const theme = useTheme();
   const {sidebar} = useSelector((store)=> store.app);// access our store inside component
   const [selectedChat, setSelectedChat] = useState(null);
+  const [activeRendezvous, setActiveRendezvous] = useState(null);
   return (
     <Stack direction='row' sx={{ width: '100%' }}>
       {/* Chats */}
-      <Chats onSelectChat={setSelectedChat} />
+      <Chats onSelectChat={setSelectedChat} onActiveRendezvousUpdate={setActiveRendezvous} />
 
       <Box sx={{ height: '100%', width: sidebar.open ? 'calc(100vw - 740px)': 'calc(100vw - 420px)',
        backgroundColor: theme.palette.mode === 'light' ? '#F0F4FA' : theme.palette.background.default }}>
       {/* Conversation */}
-      <Conversation selectedChat={selectedChat} />
+      <Conversation selectedChat={selectedChat}  activeRendezvous={activeRendezvous}  onMeetingEnd={() => setActiveRendezvous(null)} />
       </Box>
       {/* Contact */}
       {sidebar.open && (()=>{

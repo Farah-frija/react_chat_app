@@ -7,13 +7,23 @@ import Footer from './Footer';
 import Message from './Message';
 import { useChat } from '../../agoraService/Agora_chat';
 
-const Conversation = ({ selectedChat }) => {
+const Conversation = ({ selectedChat, activeRendezvous,onMeetingEnd }) => {
   const theme = useTheme();
   const [dbMessages, setDbMessages] = useState([]);
   const { messages, login, isConnected } = useChat();
   const [loading, setLoading] = useState(true);
-  const [displayMessages, setDisplayMessages] = useState([]); // Combined display list
-  
+  const [displayMessages, setDisplayMessages] = useState([]);
+  // Removed the local state since we're getting it from props now
+
+  // Add this useEffect to log or handle activeRendezvous changes
+  useEffect(() => {
+    if (activeRendezvous) 
+      console.log('Active Rendezvous Data:', activeRendezvous);
+    else
+    console.log('noootttt Active Rendezvous Data:', activeRendezvous);
+      // You can add any rendezvous-specific logic here
+   
+  }, [activeRendezvous]);
   // Hardcoded login - replace with your actual user ID and token
  /* useEffect(() => {
     const hardcodedUserId = "1111"; // Replace with your user ID
@@ -26,13 +36,13 @@ const Conversation = ({ selectedChat }) => {
   }, [isConnected, login]);*/
   useEffect(() => {
     const fetchAndLogin = async () => {
-      const userId = "1"; // Replace with dynamic user ID if needed
+      const userId = localStorage.getItem("userId");// Replace with dynamic user ID if needed
       const expireTime = 360000; // Token expiry in seconds
-  
+      const port=process.env.REACT_APP_PORT;
       try {
         // Call your backend token API
         const response = await fetch(
-          `http://localhost:3001/chat/token/generateUserToken?account=${userId}&expireTimeInSeconds=${expireTime}`
+          `http://localhost:${port}/chat/token/generateUserToken?account=${userId}&expireTimeInSeconds=${expireTime}`
         );
         
         const data = await response.json();
@@ -51,14 +61,15 @@ const Conversation = ({ selectedChat }) => {
     }
   }, [isConnected, login]);
   useEffect(() => {
-    const userId = "1";
+    const userId = localStorage.getItem("userId");// Replace with dynamic user ID if needed
+     const port=process.env.REACT_APP_PORT;
     const fetchMessages = async () => {
       if (!selectedChat) return;
       
       setLoading(true);
       try {
         const response = await fetch(
-          `http://localhost:3001/conversations/${selectedChat.id}/messages/?userId=1`
+          `http://localhost:${port}/conversations/${selectedChat.id}/messages/?userId=${userId}`
         );
         const data = await response.json();
         console.log(data.messages,"dataaa");
@@ -117,13 +128,16 @@ useEffect(() => {
   return (
     <Stack height={'100%'} maxHeight={'100vh'} width={'auto'}>
       {/* Chat header */}
-      <Header selectedChat={selectedChat} />
+      <Header selectedChat={selectedChat} 
+      activeRendezvous={activeRendezvous}
+      onMeetingEnd={onMeetingEnd} />
       {/* Msg */}
       <Box className='scrollbar' width={"100%"} sx={{flexGrow:1, height:'100%', overflowY:'scroll'}}>
         <Message menu={true} messages={displayMessages}/>
       </Box>
       {/* Chat footer */}
-      <Footer selectedChat={selectedChat}/>
+      <Footer selectedChat={selectedChat}  activeRendezvous={activeRendezvous}
+      onMeetingEnd={onMeetingEnd} />
     </Stack>
   )
 }

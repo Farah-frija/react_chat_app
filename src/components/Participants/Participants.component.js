@@ -19,11 +19,12 @@ const MeetingRoom = () => {
     channel: new URLSearchParams(location.search).get('convId'),
     token: "null" // Initialize as null
   });
-  
+  const userId = parseInt(localStorage.getItem("userId"));// Replace with dynamic user ID if needed
+  const port=process.env.REACT_APP_PORT;
   const fetchToken = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3001/chat/token/generateChannelToken?channelName=${roomDetails.channel}`
+        `http://localhost:${port}/chat/token/generateChannelToken?channelName=${roomDetails.channel}`
       );
       const { token } = await response.json();
       return token;
@@ -69,10 +70,10 @@ console.log('Strict equality:', roomDetails.token === null);
        // Create meeting session record first
     
       const response = await axios.post(
-        'http://localhost:3001/meeting-history/record',
+        `http://localhost:${port}/meeting-history/record`,
         {
           conversationId: roomDetails.channel, // Assuming channel is the conversationId
-          participantId: 1, // Replace with actual participant ID
+          participantId: userId, // Replace with actual participant ID
           actionType: 'join'
         },
         {
@@ -112,10 +113,10 @@ console.log('Strict equality:', roomDetails.token === null);
     const client = clientRef.current;
     if (!client) return;
     const response = await axios.post(
-      'http://localhost:3001/meeting-history/record',
+      `http://localhost:${port}/meeting-history/record`,
       {
         conversationId: roomDetails.channel, // Assuming channel is the conversationId
-        participantId: 1, // Replace with actual participant ID
+        participantId: userId, // Replace with actual participant ID
         actionType: 'leave'
       },
       {

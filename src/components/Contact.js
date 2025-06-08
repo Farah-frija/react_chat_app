@@ -20,13 +20,15 @@ const Contact = ({ selectedChat }) => {
   const [loading, setLoading] = useState(true);
   const theme = useTheme();
   const conversationId = selectedChat?.id;
-  const currentUserId = 1;
+  const currentUserId = localStorage.getItem("userId");
 
   useEffect(() => {
     const fetchMeetingHistory = async () => {
       try {
+        const port=process.env.REACT_APP_PORT;
+        console.log(`http://localhost:${port}/meeting-history/conversation/${conversationId}`);
         const response = await axios.get(
-          `http://localhost:3001/meeting-history/conversation/${conversationId}`
+          `http://localhost:${port}/meeting-history/conversation/${conversationId}`
         );
         setMeetingSessions(response.data);
       } catch (error) {

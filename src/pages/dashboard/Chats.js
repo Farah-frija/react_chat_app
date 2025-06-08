@@ -6,16 +6,48 @@ import { faker } from '@faker-js/faker';
 import { Search, SearchIconWrapper, StyledInputBase } from '../../components/Search';
 import ChatElement from '../../components/ChatElement';
 
-const Chats =  ({ onSelectChat }) => {
+const Chats =  ({ onSelectChat , onActiveRendezvousUpdate  }) => {
   const theme = useTheme();
   const [chatList, setChatList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedChat, setSelectedChat] = useState(null); // Add this line
+  const [selectedChat, setSelectedChat] = useState(null);
+  const [activeRendezvous, setActiveRendezvous] = useState(null);
+   // Add this line
+  const userId = localStorage.getItem("userId");// Replace with dynamic user ID if needed
+  const port=process.env.REACT_APP_PORT;
+  useEffect(() => {
+    const fetchActiveRendezvous = async () => {
+      try {
+        const response = await fetch(`http://localhost:${port}/payments/${userId}/active-rendezvous`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch active rendezvous');
+        }
+        const data = await response.json();
+        if(data.status=='success')
+        {setActiveRendezvous(data);
+          onActiveRendezvousUpdate(data); // Même nom ici
+        }
+      
+         
+      } catch (err) {
+        console.error("Error fetching active rendezvous:", err);
+        setActiveRendezvous(null);
+      }
+    };
+
+    fetchActiveRendezvous();
+  }, [onActiveRendezvousUpdate]);
+  const hasActiveRendezvous = (chat) => {
+    return activeRendezvous && activeRendezvous.conversationId === chat.id;
+  };
+  useEffect(() => {
+    console.log(activeRendezvous,"actiiiveeeee");
+  }, [activeRendezvous]);
   useEffect(() => {
     const fetchChats = async () => {
       try {
-        const response = await fetch('http://localhost:3001/conversations/user/1');
+        const response = await fetch(`http://localhost:${port}/conversations/user/${userId}`);
         if (!response.ok) {
           throw new Error('Failed to fetch chats');
         }
@@ -131,6 +163,8 @@ const Chats =  ({ onSelectChat }) => {
       {...el}
       onClick={() => handleChatSelect(el)}
       isSelected={selectedChat?.id === el.id}
+      hasActiveRendezvous={hasActiveRendezvous(el)}
+      activeRendezvous={hasActiveRendezvous(el) ? activeRendezvous : null}
     />
   ))}
           </Stack>
